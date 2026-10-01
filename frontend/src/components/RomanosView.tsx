@@ -1,21 +1,16 @@
+// frontend/src/components/RomanosView.tsx
 import React, { useState } from 'react';
 import { postRomanos } from '../services/api';
 
 export const RomanosView: React.FC = () => {
-  const [numA, setNumA] = useState('IV');
-  const [numB, setNumB] = useState('III');
-  const [inputConv, setInputConv] = useState('7');
+  const [numA, setNumA] = useState('XIV');
+  const [numB, setNumB] = useState('V');
+  const [inputConv, setInputConv] = useState('2026');
 
   const [resultadoOp, setResultadoOp] = useState<any>(null);
   const [resultadoConv, setResultadoConv] = useState<any>(null);
   const [errorOp, setErrorOp] = useState<string | null>(null);
   const [errorConv, setErrorConv] = useState<string | null>(null);
-
-  const digitos = [
-    { rom: 'I', arab: 1 }, { rom: 'II', arab: 2 }, { rom: 'III', arab: 3 },
-    { rom: 'IV', arab: 4 }, { rom: 'V', arab: 5 }, { rom: 'VI', arab: 6 },
-    { rom: 'VII', arab: 7 }, { rom: 'VIII', arab: 8 }, { rom: 'IX', arab: 9 }
-  ];
 
   const ejecutarOperacion = async (op: string) => {
     setErrorOp(null);
@@ -28,7 +23,7 @@ export const RomanosView: React.FC = () => {
         setResultadoOp({ op, ...data.data });
       }
     } catch (e: any) {
-      setErrorOp(e.message || 'Error de conexión');
+      setErrorOp(e.message || 'Error de conexion');
     }
   };
 
@@ -43,68 +38,59 @@ export const RomanosView: React.FC = () => {
         setResultadoConv(data.data);
       }
     } catch (e: any) {
-      setErrorConv(e.message || 'Error de conexión');
+      setErrorConv(e.message || 'Error de conexion');
     }
   };
 
   return (
     <div className="space-y-6 max-w-4xl mx-auto">
-      {/* Panel de Operaciones */}
+      {/* Panel de Operaciones Aritmeticas Romanas */}
       <div className="glass-card rounded-3xl p-6 sm:p-8">
-        <h2 className="text-xl font-black text-slate-800 mb-2">Aritmética Romana (Dígitos I al IX)</h2>
+        <h2 className="text-xl font-black text-slate-800 mb-2">Aritmetica con Numeros Romanos</h2>
         <p className="text-xs text-slate-500 mb-6">
-          Operaciones de un solo dígito con multiplicación definida como suma repetida.
+          Soporte para cualquier numero romano o arabigo (1 a 3999). Multiplicacion formal como suma repetida.
         </p>
 
-        {/* Selector interactivo / entrada intuitiva */}
         <div className="bg-white/60 border border-slate-200/90 rounded-2xl p-5 shadow-sm space-y-4">
           <div className="flex flex-wrap items-center gap-4">
             <div className="flex flex-col gap-1.5">
-              <label className="text-xs font-bold text-slate-500 uppercase">Operando A</label>
-              <select
+              <label className="text-xs font-bold text-slate-500 uppercase">Operando A (Romano o Arabigo)</label>
+              <input
+                type="text"
                 value={numA}
                 onChange={(e) => setNumA(e.target.value)}
-                className="glass-input px-4 py-2 rounded-xl text-sm font-black cursor-pointer"
-              >
-                {digitos.map((d) => (
-                  <option key={d.rom} value={d.rom}>
-                    {d.rom} ({d.arab})
-                  </option>
-                ))}
-              </select>
+                placeholder="Ej: XIV o 14"
+                className="glass-input px-4 py-2 rounded-xl text-sm font-black w-44"
+              />
             </div>
 
             <div className="flex flex-col gap-1.5">
-              <label className="text-xs font-bold text-slate-500 uppercase">Operando B</label>
-              <select
+              <label className="text-xs font-bold text-slate-500 uppercase">Operando B (Romano o Arabigo)</label>
+              <input
+                type="text"
                 value={numB}
                 onChange={(e) => setNumB(e.target.value)}
-                className="glass-input px-4 py-2 rounded-xl text-sm font-black cursor-pointer"
-              >
-                {digitos.map((d) => (
-                  <option key={d.rom} value={d.rom}>
-                    {d.rom} ({d.arab})
-                  </option>
-                ))}
-              </select>
+                placeholder="Ej: V o 5"
+                className="glass-input px-4 py-2 rounded-xl text-sm font-black w-44"
+              />
             </div>
 
             <div className="flex items-center gap-2 mt-5 ml-auto">
               <button
                 onClick={() => ejecutarOperacion('suma')}
-                className="glass-pill px-4 py-2 rounded-xl text-xs font-black text-slate-800 hover:bg-white transition-all"
+                className="glass-pill px-4 py-2 rounded-xl text-xs font-black text-slate-800 hover:bg-white shadow-xs"
               >
                 Sumar (+)
               </button>
               <button
                 onClick={() => ejecutarOperacion('resta')}
-                className="glass-pill px-4 py-2 rounded-xl text-xs font-black text-slate-800 hover:bg-white transition-all"
+                className="glass-pill px-4 py-2 rounded-xl text-xs font-black text-slate-800 hover:bg-white shadow-xs"
               >
                 Restar (−)
               </button>
               <button
                 onClick={() => ejecutarOperacion('multiplicar')}
-                className="px-5 py-2 rounded-xl text-xs font-black text-white bg-slate-800 hover:bg-slate-700 shadow-sm transition-all"
+                className="px-5 py-2 rounded-xl text-xs font-black text-white bg-slate-800 hover:bg-slate-700 shadow-sm"
               >
                 Multiplicar (×)
               </button>
@@ -113,7 +99,7 @@ export const RomanosView: React.FC = () => {
         </div>
 
         {errorOp && (
-          <div className="mt-4 glass-card bg-rose-50/90 border-rose-200 p-4 rounded-2xl text-rose-800 text-xs font-bold">
+          <div className="mt-4 glass-card bg-rose-50 border-rose-200 p-4 rounded-2xl text-rose-800 text-xs font-bold">
             ⚠️ {errorOp}
           </div>
         )}
@@ -126,7 +112,7 @@ export const RomanosView: React.FC = () => {
                 {resultadoOp.resultado_romano}
               </span>
               <span className="text-xs font-bold text-slate-500">
-                (Equivalente: {resultadoOp.resultado_arabigo})
+                (Equivalente Decimal: {resultadoOp.resultado_arabigo})
               </span>
             </div>
 
@@ -144,11 +130,11 @@ export const RomanosView: React.FC = () => {
         )}
       </div>
 
-      {/* Panel de Conversión Arábigo <-> Romano */}
+      {/* Conversor Bidireccional sin limite */}
       <div className="glass-card rounded-3xl p-6 sm:p-8">
-        <h3 className="text-lg font-black text-slate-800 mb-2">Conversión Rápida (1 al 9)</h3>
+        <h3 className="text-lg font-black text-slate-800 mb-2">Conversor Bidireccional (Arabigo ↔ Romano)</h3>
         <p className="text-xs text-slate-500 mb-4">
-          Escribe un número arábigo (1 - 9) o su símbolo romano (I - IX) para obtener su equivalencia inmediata.
+          Ingrese cualquier numero arabigo (1 - 3999) o cualquier expresion romana valida (I - MMMCMXCIX).
         </p>
 
         <div className="flex items-center gap-3">
@@ -157,8 +143,8 @@ export const RomanosView: React.FC = () => {
             value={inputConv}
             onChange={(e) => setInputConv(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && ejecutarConversion()}
-            placeholder="Ej: 7 o VII"
-            className="glass-input px-4 py-2.5 rounded-xl font-mono text-sm font-bold w-44"
+            placeholder="Ej: 2026 o MMXXVI"
+            className="glass-input px-4 py-2.5 rounded-xl font-mono text-sm font-bold w-52"
           />
           <button
             onClick={ejecutarConversion}
@@ -175,10 +161,19 @@ export const RomanosView: React.FC = () => {
         )}
 
         {resultadoConv && (
-          <div className="mt-4 p-4 rounded-xl bg-white/70 border border-slate-200">
-            <p className="font-mono text-xs text-slate-800 font-bold">
-              {resultadoConv.explicacion}
-            </p>
+          <div className="mt-4 p-4 rounded-2xl bg-white/80 border border-slate-200 space-y-2">
+            <div className="flex items-center gap-2 text-xs font-black text-slate-600">
+              <span>Direccion:</span>
+              <span className="text-blue-700 font-extrabold">{resultadoConv.direccion}</span>
+            </div>
+            <div className="text-base font-black font-mono text-slate-900">
+              {resultadoConv.entrada} = <span className="text-emerald-700">{resultadoConv.resultado}</span>
+            </div>
+            <div className="space-y-1 pt-2 border-t border-slate-200 text-xs font-mono text-slate-600">
+              {resultadoConv.pasos.map((p: string, i: number) => (
+                <div key={i}>{p}</div>
+              ))}
+            </div>
           </div>
         )}
       </div>

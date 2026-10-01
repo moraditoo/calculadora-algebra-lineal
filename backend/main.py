@@ -2,6 +2,7 @@
 import sys
 import os
 
+# Anadir directorio actual al path de busqueda
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 from flask import Flask, request, jsonify
@@ -18,7 +19,6 @@ from romanos import OperacionesRomanos
 app = Flask(__name__)
 CORS(app)
 
-
 @app.route("/api/ecuaciones", methods=["POST"])
 def resolver_ecuaciones():
     data = request.json
@@ -33,6 +33,7 @@ def resolver_ecuaciones():
             n = len(matriz[0]) - 1
             vars_names = [f"x_{i+1}" for i in range(n)]
 
+        # Enrutar segun el metodo solicitado por el usuario
         if metodo == "gauss":
             solver = MetodoGauss()
             pasos, mat_final = solver.eliminar(matriz, m, n)
@@ -70,6 +71,7 @@ def resolver_ecuaciones():
 
         return jsonify({
             "status": "success",
+            "metodo_usado": metodo,
             "pasos": pasos,
             "clasificacion": clasificacion,
             "solucion": sol_dict,
@@ -78,7 +80,6 @@ def resolver_ecuaciones():
         })
     except Exception as e:
         return jsonify({"status": "error", "mensaje": str(e)}), 400
-
 
 @app.route("/api/vectores", methods=["POST"])
 def api_vectores():
@@ -98,10 +99,9 @@ def api_vectores():
             res = OperacionesVectores.combinacion_lineal(data["vectores"], data["b"])
             return jsonify({"status": "success", "data": res})
         else:
-            raise ValueError(f"Operación '{op}' no reconocida.")
+            raise ValueError(f"Operacion '{op}' no reconocida.")
     except Exception as e:
         return jsonify({"status": "error", "mensaje": str(e)}), 400
-
 
 @app.route("/api/matrices", methods=["POST"])
 def api_matrices():
@@ -120,14 +120,22 @@ def api_matrices():
         elif op == "multiplicar":
             res = OperacionesMatrices.multiplicar(data["A"], data["B"])
             return jsonify({"status": "success", "data": res})
-        elif op == "ecuacion":
-            res = OperacionesMatrices.ecuacion_matricial(data["A"], data["B"])
+        elif op == "transponer":
+            res = OperacionesMatrices.transponer(data["A"])
+            return jsonify({"status": "success", "data": res})
+        elif op == "inversa":
+            res = OperacionesMatrices.calcular_inversa_gauss_jordan(data["A"])
+            return jsonify({"status": "success", "data": res})
+        elif op == "inversa_de_inversa":
+            res = OperacionesMatrices.inversa_de_inversa(data["A"])
+            return jsonify({"status": "success", "data": res})
+        elif op == "resolver_por_inversa":
+            res = OperacionesMatrices.resolver_por_inversa(data["A"], data["B"])
             return jsonify({"status": "success", "data": res})
         else:
-            raise ValueError(f"Operación '{op}' no reconocida.")
+            raise ValueError(f"Operacion '{op}' no reconocida.")
     except Exception as e:
         return jsonify({"status": "error", "mensaje": str(e)}), 400
-
 
 @app.route("/api/conversor", methods=["POST"])
 def api_conversor():
@@ -137,7 +145,6 @@ def api_conversor():
         return jsonify({"status": "success", "data": res})
     except Exception as e:
         return jsonify({"status": "error", "mensaje": str(e)}), 400
-
 
 @app.route("/api/romanos", methods=["POST"])
 def api_romanos():
@@ -154,13 +161,12 @@ def api_romanos():
             res = OperacionesRomanos.multiplicacion(data["a"], data["b"])
             return jsonify({"status": "success", "data": res})
         elif op == "convertir":
-            res = OperacionesRomanos.convertir_simple(data["entrada"])
+            res = OperacionesRomanos.conversion_bidireccional(data["entrada"])
             return jsonify({"status": "success", "data": res})
         else:
-            raise ValueError(f"Operación '{op}' no reconocida.")
+            raise ValueError(f"Operacion '{op}' no reconocida.")
     except Exception as e:
         return jsonify({"status": "error", "mensaje": str(e)}), 400
-
 
 if __name__ == "__main__":
     app.run(debug=True, port=5000)
