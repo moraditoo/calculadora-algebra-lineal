@@ -1,3 +1,4 @@
+// frontend/src/components/MatricesView.tsx
 import React, { useState } from 'react';
 import { postMatrices } from '../services/api';
 
@@ -16,7 +17,6 @@ export const MatricesView: React.FC = () => {
   const [resultado, setResultado] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
 
-  // Estado para la alerta de confirmación en matrices grandes (>= 5)
   const [alertaGrande, setAlertaGrande] = useState<{
     mostrar: boolean;
     filas: number;
@@ -32,14 +32,12 @@ export const MatricesView: React.FC = () => {
   });
 
   const estimarTiempo = (n: number) => {
-    // Estimación O(n^3) con aritmética de fracciones exactas BigInt
-    if (n <= 4) return "< 15 ms (Inmediato)";
-    if (n === 5) return "~45 - 90 ms";
-    if (n === 6) return "~150 - 300 ms";
-    if (n === 7) return "~600 - 1200 ms";
-    if (n === 8) return "~2.5 - 4.5 segundos";
-    if (n === 9) return "~7 - 12 segundos";
-    return "~20 - 35 segundos (Aritmética racional exacta)";
+    if (n <= 4) return "< 20 ms (Inmediato)";
+    if (n === 5) return "~50 - 100 ms";
+    if (n === 6) return "~200 - 400 ms";
+    if (n === 7) return "~800 - 1500 ms";
+    if (n === 8) return "~3 - 5 segundos";
+    return "~15 - 30 segundos (Precision Racional Exacta)";
   };
 
   const handleCambioDimension = (nuevaFila: number, nuevaCol: number, tipo: 'A' | 'B') => {
@@ -89,28 +87,27 @@ export const MatricesView: React.FC = () => {
         setResultado({ op, data: data.data });
       }
     } catch (e: any) {
-      setError(e.message || 'Error de conexión con el backend en Python');
+      setError(e.message || 'Error de conexion con el servidor Python');
     }
   };
 
   return (
     <div className="space-y-6 max-w-5xl mx-auto">
-      {/* Alerta de confirmación para matrices grandes */}
+      {/* Modal para matrices grandes */}
       {alertaGrande.mostrar && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4">
           <div className="glass-card bg-white/95 rounded-3xl p-6 max-w-md w-full shadow-2xl border border-slate-300 space-y-4">
             <h3 className="text-base font-black text-amber-800 flex items-center gap-2">
-              ⚠️ Alerta de Matriz de Gran Dimensión ({alertaGrande.filas} × {alertaGrande.cols})
+              ⚠️ Alerta de Complejidad: Matriz {alertaGrande.filas} × {alertaGrande.cols}
             </h3>
             <p className="text-xs text-slate-700 leading-relaxed">
-              Está solicitando una dimensión de orden superior. Los cálculos con aritmética fraccionaria exacta 
-              poseen una complejidad cúbica <strong>O(n³)</strong>.
+              El calculo con fracciones exactas posee una complejidad computacional <strong>O(n³)</strong>.
             </p>
             <div className="bg-amber-50 p-3 rounded-xl border border-amber-200 text-xs font-mono font-bold text-amber-900">
-              Tiempo estimado de cálculo: {alertaGrande.tiempoEst}
+              Tiempo estimado de calculo: {alertaGrande.tiempoEst}
             </div>
             <p className="text-xs font-semibold text-slate-600">
-              ¿Desea confirmar esta cantidad y generar la cuadrícula?
+              ¿Desea confirmar esta cantidad y generar la cuadricula?
             </p>
             <div className="flex justify-end gap-2 pt-2">
               <button
@@ -130,16 +127,16 @@ export const MatricesView: React.FC = () => {
         </div>
       )}
 
-      {/* Contenedor Principal */}
+      {/* Contenedor principal de controles */}
       <div className="glass-card rounded-3xl p-6 sm:p-8">
         <h2 className="text-xl font-black text-slate-800 mb-2">
-          Operaciones Matriciales, Inversa [A | I] y Ecuación Ax = b
+          Modulo de Matrices & Inversa por Gauss-Jordan
         </h2>
         <p className="text-xs text-slate-500 mb-5">
-          Cálculo exacto mediante eliminación de Gauss-Jordan con comprobación teórica de matrices invertibles.
+          Operaciones fundamentales, determinacion de A⁻¹ mediante [A | I], teoremas de invertibilidad y comprobacion formal.
         </p>
 
-        {/* Selectores de Dimensión */}
+        {/* Selectores de dimensiones */}
         <div className="flex flex-wrap items-center gap-6 mb-4 text-xs font-bold text-slate-700">
           <div className="flex items-center gap-2 bg-white/60 p-2.5 rounded-2xl border border-slate-200">
             <span>Matriz A:</span>
@@ -163,7 +160,7 @@ export const MatricesView: React.FC = () => {
           </div>
 
           <div className="flex items-center gap-2 bg-white/60 p-2.5 rounded-2xl border border-slate-200">
-            <span>Matriz B (o vector b):</span>
+            <span>Matriz B / Vector b:</span>
             <input
               type="number"
               min="1"
@@ -184,7 +181,7 @@ export const MatricesView: React.FC = () => {
           </div>
         </div>
 
-        {/* Cuadrículas de Entrada */}
+        {/* Cuadriculas de entrada */}
         <div className="flex gap-6 overflow-x-auto py-3 bg-white/40 p-4 rounded-2xl border border-slate-200/80">
           <div>
             <h4 className="text-xs font-black text-slate-800 mb-2">Matriz A ({fa}×{ca})</h4>
@@ -235,18 +232,18 @@ export const MatricesView: React.FC = () => {
           </div>
         </div>
 
-        {/* Botonera de Operaciones con Teoremas y Gauss-Jordan */}
+        {/* Botonera de acciones */}
         <div className="flex flex-wrap items-center gap-2 mt-5 pt-4 border-t border-slate-200 text-xs">
           <button onClick={() => operar('inversa')} className="px-4 py-2 rounded-xl font-black text-white bg-slate-800 hover:bg-slate-700 shadow-md">
             Inversa A⁻¹ [A | I]
           </button>
-          <button onClick={() => operar('inversa_de_inversa')} className="glass-pill px-3.5 py-2 rounded-xl font-bold text-slate-800 hover:bg-white">
+          <button onClick={() => operar('inversa_de_inversa')} className="glass-pill px-3.5 py-2 rounded-xl font-bold text-slate-800 hover:bg-white shadow-xs">
             (A⁻¹)⁻¹ = A
           </button>
-          <button onClick={() => operar('resolver_por_inversa')} className="glass-pill px-3.5 py-2 rounded-xl font-bold text-slate-800 hover:bg-white">
+          <button onClick={() => operar('resolver_por_inversa')} className="glass-pill px-3.5 py-2 rounded-xl font-bold text-slate-800 hover:bg-white shadow-xs">
             Resolver x = A⁻¹b
           </button>
-          <button onClick={() => operar('transponer')} className="glass-pill px-3.5 py-2 rounded-xl font-bold text-slate-800 hover:bg-white">
+          <button onClick={() => operar('transponer')} className="glass-pill px-3.5 py-2 rounded-xl font-bold text-slate-800 hover:bg-white shadow-xs">
             Transpuesta (Aᵀ)
           </button>
           <button onClick={() => operar('suma')} className="glass-pill px-3 py-2 rounded-xl font-bold text-slate-700 hover:bg-white">
@@ -280,12 +277,12 @@ export const MatricesView: React.FC = () => {
         </div>
       )}
 
-      {/* RENDERIZADO CON RESALTADO VISUAL DE RESULTADOS */}
+      {/* Resultados y Procedimientos Paso a Paso */}
       {resultado && (
         <div className="glass-card rounded-3xl p-6 sm:p-8 space-y-6">
-          {/* CASO: INVERSA DE UNA MATRIZ (GAUSS-JORDAN O EARLY RETURN) */}
+          {/* CASO: INVERSA A^-1 */}
           {resultado.op === 'inversa' && (
-            <div className="space-y-4">
+            <div className="space-y-6">
               {!resultado.data.invertible ? (
                 <div className="p-4 rounded-2xl bg-rose-50 border border-rose-200 text-rose-900 space-y-1">
                   <div className="text-xs font-black uppercase text-rose-700">Early Return Teórico Aplicado:</div>
@@ -293,94 +290,107 @@ export const MatricesView: React.FC = () => {
                   <p className="text-xs text-rose-800">{resultado.data.detalle}</p>
                 </div>
               ) : (
-                <div className="space-y-5">
+                <div className="space-y-6">
                   <div className="p-3.5 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-900 text-xs font-bold">
                     ✓ {resultado.data.motivo}
                   </div>
 
-                  {/* Resaltado de Matriz Inversa Obtenida */}
-                  <div className="bg-white/80 p-5 rounded-2xl border border-slate-200 shadow-sm space-y-2">
-                    <span className="text-xs font-black text-slate-500 uppercase tracking-wide">
-                      Matriz Inversa A⁻¹:
-                    </span>
-                    <div className="space-y-1.5">
-                      {resultado.data.inversa.map((fila: string[], i: number) => (
-                        <div key={i} className="flex gap-2">
-                          {fila.map((c: string, j: number) => (
-                            <span
-                              key={j}
-                              className="w-16 text-center py-2 rounded-xl font-mono text-xs font-black bg-emerald-100 text-emerald-950 border border-emerald-300 shadow-xs"
-                            >
-                              {c}
-                            </span>
-                          ))}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Verificación Obligatoria: A * A^-1 = I */}
-                  <div className="bg-white/80 p-5 rounded-2xl border border-slate-200 space-y-2">
-                    <span className="text-xs font-black text-slate-600 uppercase tracking-wide">
-                      Verificación Requerida: Producto A · A⁻¹ = I_{fa}:
-                    </span>
-                    <div className="space-y-1.5">
-                      {resultado.data.verificacion_identidad.map((fila: string[], i: number) => (
-                        <div key={i} className="flex gap-2">
-                          {fila.map((c: string, j: number) => (
-                            <span
-                              key={j}
-                              className={`w-14 text-center py-1.5 rounded-xl font-mono text-xs font-black ${
-                                i === j
-                                  ? 'bg-blue-600 text-white shadow-xs'
-                                  : 'bg-slate-100 text-slate-600'
-                              }`}
-                            >
-                              {c}
-                            </span>
-                          ))}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Desglose de matrices intermedias Gauss-Jordan */}
-                  {resultado.data.pasos_matrices && (
-                    <div className="space-y-3">
-                      <h4 className="text-xs font-black uppercase text-slate-600">
-                        Proceso de Reducción Escalonada de la Matriz Aumentada [A | I]:
-                      </h4>
-                      {resultado.data.pasos_matrices.map(([desc, mat]: any, idx: number) => (
-                        <div key={idx} className="bg-white/60 p-3.5 rounded-2xl border border-slate-200/70">
-                          <p className="text-xs font-bold text-slate-800 mb-2">{desc}</p>
-                          <div className="flex flex-col gap-1 overflow-x-auto">
-                            {mat.map((fila: string[], fi: number) => (
-                              <div key={fi} className="flex gap-1.5">
-                                {fila.map((c: string, ci: number) => (
-                                  <span
-                                    key={ci}
-                                    className={`w-14 text-center py-1 rounded-lg font-mono text-xs font-bold ${
-                                      ci >= fa
-                                        ? 'bg-emerald-50 text-emerald-900 border border-emerald-200'
-                                        : 'bg-white text-slate-900'
-                                    }`}
-                                  >
-                                    {c}
-                                  </span>
-                                ))}
-                              </div>
+                  {/* Matrices resultantes */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {/* Matriz inversa */}
+                    <div className="bg-white/80 p-5 rounded-2xl border border-slate-200 shadow-sm space-y-2">
+                      <span className="text-xs font-black text-slate-600 uppercase tracking-wide block">
+                        Matriz Inversa A⁻¹:
+                      </span>
+                      <div className="space-y-1.5">
+                        {resultado.data.inversa.map((fila: string[], i: number) => (
+                          <div key={i} className="flex gap-2">
+                            {fila.map((c: string, j: number) => (
+                              <span
+                                key={j}
+                                className="w-16 text-center py-2 rounded-xl font-mono text-xs font-black bg-emerald-100 text-emerald-950 border border-emerald-300 shadow-xs"
+                              >
+                                {c}
+                              </span>
                             ))}
                           </div>
-                        </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Matriz identidad verificada */}
+                    <div className="bg-white/80 p-5 rounded-2xl border border-slate-200 shadow-sm space-y-2">
+                      <span className="text-xs font-black text-slate-600 uppercase tracking-wide block">
+                        Resultado del Producto A · A⁻¹ = I_{fa}:
+                      </span>
+                      <div className="space-y-1.5">
+                        {resultado.data.verificacion_identidad.map((fila: string[], i: number) => (
+                          <div key={i} className="flex gap-2">
+                            {fila.map((c: string, j: number) => (
+                              <span
+                                key={j}
+                                className={`w-14 text-center py-1.5 rounded-xl font-mono text-xs font-black ${
+                                  i === j
+                                    ? 'bg-blue-600 text-white shadow-xs'
+                                    : 'bg-slate-100 text-slate-600'
+                                }`}
+                              >
+                                {c}
+                              </span>
+                            ))}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* DESGLOSE DETALLADO: CÓMO SE MULTIPLICÓ A * A^-1 PARA OBTENER LA IDENTIDAD */}
+                  <div className="bg-white/70 border border-slate-200 p-5 rounded-2xl space-y-3">
+                    <h4 className="text-xs font-black uppercase text-slate-700">
+                      Demostración Analítica del Producto A · A⁻¹ = I (Fila por Columna entrada por entrada):
+                    </h4>
+                    <div className="space-y-1 font-mono text-xs text-slate-700 bg-slate-50/80 p-3 rounded-xl border border-slate-200">
+                      {resultado.data.detalles_verificacion.map((linea: string, idx: number) => (
+                        <div key={idx}>{linea}</div>
                       ))}
                     </div>
-                  )}
+                  </div>
+
+                  {/* PROCESO DE GAUSS-JORDAN PASO POR PASO EN [A | I] */}
+                  <div className="space-y-3">
+                    <h4 className="text-xs font-black uppercase text-slate-700">
+                      Transformación Escalonada de la Matriz Aumentada [A | I] hacia [I | A⁻¹]:
+                    </h4>
+                    {resultado.data.pasos_matrices.map(([desc, mat]: any, idx: number) => (
+                      <div key={idx} className="bg-white/60 p-4 rounded-2xl border border-slate-200/70 space-y-2">
+                        <p className="text-xs font-bold text-slate-800">{desc}</p>
+                        <div className="flex flex-col gap-1 overflow-x-auto">
+                          {mat.map((fila: string[], fi: number) => (
+                            <div key={fi} className="flex gap-1.5">
+                              {fila.map((c: string, ci: number) => (
+                                <span
+                                  key={ci}
+                                  className={`w-14 text-center py-1 rounded-lg font-mono text-xs font-bold ${
+                                    ci >= fa
+                                      ? 'bg-emerald-50 text-emerald-900 border border-emerald-200'
+                                      : 'bg-white text-slate-900'
+                                  }`}
+                                >
+                                  {c}
+                                </span>
+                              ))}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               )}
             </div>
           )}
 
-          {/* CASO: INVERSA DE LA INVERSA */}
+          {/* CASO: (A^-1)^-1 = A */}
           {resultado.op === 'inversa_de_inversa' && (
             <div className="space-y-4">
               {!resultado.data.invertible ? (
@@ -394,7 +404,7 @@ export const MatricesView: React.FC = () => {
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="p-4 bg-white/80 rounded-2xl border border-slate-200">
-                      <span className="text-xs font-black text-slate-500 block mb-2">Matriz Inversa A⁻¹:</span>
+                      <span className="text-xs font-black text-slate-500 block mb-2">Primera Inversa A⁻¹:</span>
                       <div className="space-y-1">
                         {resultado.data.A_inversa.map((fila: string[], i: number) => (
                           <div key={i} className="flex gap-1.5">
@@ -409,7 +419,7 @@ export const MatricesView: React.FC = () => {
                     </div>
 
                     <div className="p-4 bg-white/80 rounded-2xl border border-emerald-200">
-                      <span className="text-xs font-black text-emerald-800 block mb-2">Inversa de Inversa (A⁻¹)⁻¹:</span>
+                      <span className="text-xs font-black text-emerald-800 block mb-2">Inversa de la Inversa (A⁻¹)⁻¹:</span>
                       <div className="space-y-1">
                         {resultado.data.A_inversa_de_inversa.map((fila: string[], i: number) => (
                           <div key={i} className="flex gap-1.5">
@@ -428,7 +438,7 @@ export const MatricesView: React.FC = () => {
             </div>
           )}
 
-          {/* CASO: RESOLVER Ax = b POR x = A^-1 * b */}
+          {/* CASO: RESOLVER x = A^-1 * b */}
           {resultado.op === 'resolver_por_inversa' && (
             <div className="space-y-4">
               {!resultado.data.resuelto ? (
@@ -436,22 +446,28 @@ export const MatricesView: React.FC = () => {
                   ⚠️ {resultado.data.motivo} - {resultado.data.detalle}
                 </div>
               ) : (
-                <div className="space-y-3">
+                <div className="space-y-4">
                   <div className="p-3.5 bg-emerald-50 border border-emerald-200 rounded-2xl text-emerald-900 font-bold text-xs">
                     ✓ {resultado.data.teorema}
                   </div>
                   <div className="p-4 bg-white/90 border border-slate-200 rounded-2xl">
-                    <span className="text-xs font-bold text-slate-500 uppercase">Vector Solución x = A⁻¹b:</span>
+                    <span className="text-xs font-bold text-slate-500 uppercase">Vector Solucion x = A⁻¹b:</span>
                     <div className="font-mono text-base font-black text-slate-900 mt-1">
                       x = [{resultado.data.x_solucion.join(', ')}]
                     </div>
+                  </div>
+                  <div className="bg-white/60 p-4 rounded-2xl border border-slate-200 space-y-1 text-xs font-mono text-slate-700">
+                    <h4 className="font-sans font-black uppercase text-slate-600 mb-2">Calculo del Producto A⁻¹ · b:</h4>
+                    {resultado.data.pasos_multiplicacion.map((p: string, i: number) => (
+                      <div key={i}>{p}</div>
+                    ))}
                   </div>
                 </div>
               )}
             </div>
           )}
 
-          {/* CASO GENERAL: SUMA, RESTA, ESCALAR, TRANSPUESTA, MULTIPLICACIÓN */}
+          {/* CASO GENERAL: SUMA, RESTA, ESCALAR, TRANSPUESTA, MULTIPLICACION */}
           {resultado.data.resultado && (
             <div className="space-y-4">
               <div>
@@ -471,7 +487,7 @@ export const MatricesView: React.FC = () => {
 
               {resultado.data.pasos && (
                 <div className="bg-white/60 p-4 rounded-2xl border border-slate-200 space-y-1">
-                  <h4 className="text-xs font-black uppercase text-slate-500 mb-2">Desglose Analítico Paso a Paso:</h4>
+                  <h4 className="text-xs font-black uppercase text-slate-500 mb-2">Desglose Analitico Elemento por Elemento:</h4>
                   {resultado.data.pasos.map((line: string, i: number) => (
                     <p key={i} className="font-mono text-xs text-slate-700">{line}</p>
                   ))}
